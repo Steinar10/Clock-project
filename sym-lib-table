@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "CLockV4_local_symbols")(type "KiCad")(uri "${KIPRJMOD}/CLockV4_local_symbols.kicad_sym")(options "")(descr ""))
+)

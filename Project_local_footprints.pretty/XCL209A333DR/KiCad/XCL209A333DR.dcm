@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP XCL209A333DR
+D Switching Voltage Regulators 400mA Inductor DCDC Converter
+K
+F https://www.torexsemi.com/file/xcl209/XCL208-XCL209.pdf
+$ENDCMP
+#
+#End Doc Library
