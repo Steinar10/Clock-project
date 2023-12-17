@@ -11,6 +11,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
+/* Again, function obsolete(?)
 inline void setLedChannel(uint8_t ledNum, uint8_t onOrOff)
 {
 	if((ledNum == 0) || (ledNum > 12)) {
@@ -32,7 +33,7 @@ inline void setLedChannel(uint8_t ledNum, uint8_t onOrOff)
 		PORTA.OUTSET = (ledValue << portAPin);
 	}
 	return;
-}
+}*/
 
 void clearAllLeds() //Set port A 0-7 and port D 0-3 to turn off all LED channels.
 {
@@ -42,7 +43,7 @@ void clearAllLeds() //Set port A 0-7 and port D 0-3 to turn off all LED channels
 
 void setupPWM()
 {
-    PORTC.REMAP |= PORT_TC0A_bm
+    PORTC.REMAP |= PORT_TC0A_bm //Better to accidentally send bogus into unused pin than into I2C data line
                 |  PORT_TC0B_bm
                 |  PORT_TC0C_bm
                 |  PORT_TC0D_bm;
@@ -64,12 +65,13 @@ void setupPWM()
     TCC0.CCA = 0xFF;
 }
 
+/* Function obsolete by new color system(?)
 void setColor(uint8_t red, uint8_t green, uint8_t blue)
 {
     TCC0.CCB = red;
     TCC0.CCD = green;
     TCC0.CCC = blue;
-}
+}*/
 
 volatile uint8_t colorNum = 0;
 #define NUMCOLORS 3
@@ -77,11 +79,11 @@ volatile uint8_t colorNum = 0;
 #define R 0
 #define G 1
 #define B 2
-const uint8_t colors[RGB][NUMCOLORS] = {{0x00, 0, 0}, {0x0F, 0, 0}, {0x00, 0, 0}};
-const uint8_t port_a_per_color[NUMCOLORS] = {0xFF, 0xFF, 0x00};
-const uint8_t port_d_per_color[NUMCOLORS] = {0x00, 0x00, 0x00};
+const uint8_t colors[RGB][NUMCOLORS] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+const uint8_t port_a_per_color[NUMCOLORS] = {0x01, 0x02, 0x04};
+const uint8_t port_d_per_color[NUMCOLORS] = {0x04, 0x02, 0x01}; //From this I expect red on 8 & 9, green on 7 & 10, blue on 6 & 11.
 
-ISR(TCC0_CCA_vect)
+ISR(TCC0_CCA_vect) //Instead of this, do DMA(?) or interrupt into CCx buffer, triggered by said CCx event!
 {
     if(++colorNum > NUMCOLORS) {
         colorNum = 0;
@@ -89,9 +91,9 @@ ISR(TCC0_CCA_vect)
     TCC0.CCB = colors[R][colorNum];
     TCC0.CCD = colors[G][colorNum];
     TCC0.CCC = colors[B][colorNum];
-    PORTA.OUT = ~port_a_per_color[colorNum];
-    PORTD.OUTSET = 0x0F;
-    PORTD.OUTCLR = port_d_per_color[colorNum];
+    PORTA.OUT = port_a_per_color[colorNum];
+    PORTD.OUTCLR = 0x0F;
+    PORTD.OUTSET = port_d_per_color[colorNum];
 }
 
 
@@ -101,18 +103,26 @@ int main(void)
     /* Replace with your application code */
 	
 	PORTA.DIR = 0xFF;
-	PORTA.OUT = 0xFC;
+    PORTCFG.MPCMASK = 0xFF; //TEST IF THIS IS HOW IT WORKS!!!!! If I forget this and it doesn't, debugging will suck.
+    PORTA.PIN0CTRL |= PORT_INVEN_bm //These outputs connected to PMOS gates.
+                   | (PORT_ISC_INPUT_DISABLE_gc << PORT_ISC_gp);//Inputs not needed here
+    PORTA.OUTCLR = 0xFF; //Turn off all LEDs
+    
 	PORTD.DIRSET = 0x0F;
-	PORTD.OUTSET = 0x0F;
+    PORTCFG.MPCMASK = 0x0F;
+    PORTD.PIN0CTRL |= PORT_INVEN_bm //These outputs connected to PMOS gates.
+                   | (PORT_ISC_INPUT_DISABLE_gc << PORT_ISC_gp);
+	PORTD.OUTCLR = 0x0F;
+    
 	PORTC.DIRSET = (1 << 5) | (1 << 6) | (1 << 7);
     
     setupPWM();
-    setColor(0, 50, 100);
     
     while (1) 
-    {
+    {/* Below code obsolete because of new colour system.
+        
 		for(int i = 5; i <= 7; ++i) { //Cycle through R, G and B on active LEDs
-			/*switch(i) {
+			switch(i) {
                 case 5:{
                     setColor(1, 0, 0);
                     break;}
@@ -125,12 +135,12 @@ int main(void)
                     break;
                 }
                     
-            }*/
+            }
 			for(int j = 0; j <= 12; ++j) {
                 clearAllLeds();
 				setLedChannel(j, 1);
 				_delay_ms(500);
 			}
-		}
+		}*/
     }
 }
