@@ -3,24 +3,24 @@ Archive member included to satisfy reference by file (symbol)
 /usr/lib/gcc/avr/5.4.0/avrxmega4/libgcc.a(_exit.o)
                               /opt/microchip/mplabx/v6.15/packs/Microchip/XMEGAA_DFP/2.2.54/gcc/dev/atxmega64a4u/avrxmega4/crtatxmega64a4u.o (exit)
 /usr/lib/gcc/avr/5.4.0/avrxmega4/libgcc.a(_copy_data.o)
-                              build/default/production/main.o (__do_copy_data)
+                              build/default/debug/main.o (__do_copy_data)
 /usr/lib/gcc/avr/5.4.0/avrxmega4/libgcc.a(_clear_bss.o)
-                              build/default/production/main.o (__do_clear_bss)
+                              build/default/debug/main.o (__do_clear_bss)
 
 Allocating common symbols
 Common symbol       size              file
 
-colors              0x24              build/default/production/main.o
+colors              0x24              build/default/debug/main.o
 
 Discarded input sections
 
  .data          0x0000000000000000        0x0 /opt/microchip/mplabx/v6.15/packs/Microchip/XMEGAA_DFP/2.2.54/gcc/dev/atxmega64a4u/avrxmega4/crtatxmega64a4u.o
  .bss           0x0000000000000000        0x0 /opt/microchip/mplabx/v6.15/packs/Microchip/XMEGAA_DFP/2.2.54/gcc/dev/atxmega64a4u/avrxmega4/crtatxmega64a4u.o
- .text          0x0000000000000000        0x0 build/default/production/main.o
- .data          0x0000000000000000        0x0 build/default/production/main.o
- .bss           0x0000000000000000        0x0 build/default/production/main.o
+ .text          0x0000000000000000        0x0 build/default/debug/main.o
+ .data          0x0000000000000000        0x0 build/default/debug/main.o
+ .bss           0x0000000000000000        0x0 build/default/debug/main.o
  .text.setColor
-                0x0000000000000000       0x1e build/default/production/main.o
+                0x0000000000000000       0x1e build/default/debug/main.o
  .text          0x0000000000000000        0x0 /usr/lib/gcc/avr/5.4.0/avrxmega4/libgcc.a(_exit.o)
  .data          0x0000000000000000        0x0 /usr/lib/gcc/avr/5.4.0/avrxmega4/libgcc.a(_exit.o)
  .bss           0x0000000000000000        0x0 /usr/lib/gcc/avr/5.4.0/avrxmega4/libgcc.a(_exit.o)
@@ -85,8 +85,11 @@ user_signatures  0x0000000000850000 0x0000000000000400 rw !x
 Linker script and memory map
 
 LOAD /opt/microchip/mplabx/v6.15/packs/Microchip/XMEGAA_DFP/2.2.54/gcc/dev/atxmega64a4u/avrxmega4/crtatxmega64a4u.o
-LOAD build/default/production/main.o
+LOAD build/default/debug/main.o
                 0x0000000000000001                __MPLAB_BUILD = 0x1
+                0x0000000000000001                __ICD2RAM = 0x1
+                0x0000000000000001                __MPLAB_DEBUG = 0x1
+                0x0000000000000001                __DEBUG = 0x1
 START GROUP
 LOAD /usr/lib/gcc/avr/5.4.0/../../../avr/lib/avrxmega4/libm.a
 END GROUP
@@ -383,18 +386,18 @@ END GROUP
                 0x000000000000023e                . = ALIGN (0x2)
  *(.text.*)
  .text.setupPWM
-                0x000000000000023e       0x48 build/default/production/main.o
+                0x000000000000023e       0x48 build/default/debug/main.o
                 0x000000000000023e                setupPWM
  .text.__vector_16
-                0x0000000000000286       0xe0 build/default/production/main.o
+                0x0000000000000286       0xe0 build/default/debug/main.o
                 0x0000000000000286                __vector_16
  .text.setupPeriodicInterrupt
-                0x0000000000000366       0x16 build/default/production/main.o
+                0x0000000000000366       0x16 build/default/debug/main.o
                 0x0000000000000366                setupPeriodicInterrupt
  .text.__vector_20
-                0x000000000000037c       0xa2 build/default/production/main.o
+                0x000000000000037c       0xa2 build/default/debug/main.o
                 0x000000000000037c                __vector_20
- .text.main     0x000000000000041e       0x5c build/default/production/main.o
+ .text.main     0x000000000000041e       0x5c build/default/debug/main.o
                 0x000000000000041e                main
                 0x000000000000047a                . = ALIGN (0x2)
  *(.fini9)
@@ -427,26 +430,26 @@ END GROUP
                 0x0000000000802000                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
- .data.bdir     0x0000000000802000        0x1 build/default/production/main.o
+ .data.bdir     0x0000000000802000        0x1 build/default/debug/main.o
                 0x0000000000802000                bdir
- .data.gdir     0x0000000000802001        0x1 build/default/production/main.o
+ .data.gdir     0x0000000000802001        0x1 build/default/debug/main.o
                 0x0000000000802001                gdir
- .data.rdir     0x0000000000802002        0x1 build/default/production/main.o
+ .data.rdir     0x0000000000802002        0x1 build/default/debug/main.o
                 0x0000000000802002                rdir
  .data.rainbowB
-                0x0000000000802003        0x1 build/default/production/main.o
+                0x0000000000802003        0x1 build/default/debug/main.o
                 0x0000000000802003                rainbowB
  .data.rainbowG
-                0x0000000000802004        0x1 build/default/production/main.o
+                0x0000000000802004        0x1 build/default/debug/main.o
                 0x0000000000802004                rainbowG
  .data.port_d_per_color
-                0x0000000000802005        0xc build/default/production/main.o
+                0x0000000000802005        0xc build/default/debug/main.o
                 0x0000000000802005                port_d_per_color
  .data.port_a_per_color
-                0x0000000000802011        0xc build/default/production/main.o
+                0x0000000000802011        0xc build/default/debug/main.o
                 0x0000000000802011                port_a_per_color
  .data.numColors
-                0x000000000080201d        0x1 build/default/production/main.o
+                0x000000000080201d        0x1 build/default/debug/main.o
                 0x000000000080201d                numColors
  *(.gnu.linkonce.d*)
  *(.rodata)
@@ -460,12 +463,12 @@ END GROUP
                 0x000000000080201e                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
- .bss.rainbowR  0x000000000080201e        0x1 build/default/production/main.o
+ .bss.rainbowR  0x000000000080201e        0x1 build/default/debug/main.o
                 0x000000000080201e                rainbowR
- .bss.colorNum  0x000000000080201f        0x1 build/default/production/main.o
+ .bss.colorNum  0x000000000080201f        0x1 build/default/debug/main.o
                 0x000000000080201f                colorNum
  *(COMMON)
- COMMON         0x0000000000802020       0x24 build/default/production/main.o
+ COMMON         0x0000000000802020       0x24 build/default/debug/main.o
                 0x0000000000802020                colors
                 0x0000000000802044                PROVIDE (__bss_end, .)
                 0x000000000000047e                __data_load_start = LOADADDR (.data)
@@ -517,7 +520,7 @@ END GROUP
 
 .comment        0x0000000000000000       0x11
  *(.comment)
- .comment       0x0000000000000000       0x11 build/default/production/main.o
+ .comment       0x0000000000000000       0x11 build/default/debug/main.o
                                          0x12 (size before relaxing)
 
 .note.gnu.avr.deviceinfo
@@ -540,33 +543,42 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges
+.debug_aranges  0x0000000000000000       0x48
  *(.debug_aranges)
+ .debug_aranges
+                0x0000000000000000       0x48 build/default/debug/main.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0x284f
+.debug_info     0x0000000000000000     0x37ec
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0x284f /opt/microchip/mplabx/v6.15/packs/Microchip/XMEGAA_DFP/2.2.54/gcc/dev/atxmega64a4u/avrxmega4/crtatxmega64a4u.o
+ .debug_info    0x000000000000284f      0xf9d build/default/debug/main.o
 
-.debug_abbrev   0x0000000000000000     0x262c
+.debug_abbrev   0x0000000000000000     0x281e
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000     0x262c /opt/microchip/mplabx/v6.15/packs/Microchip/XMEGAA_DFP/2.2.54/gcc/dev/atxmega64a4u/avrxmega4/crtatxmega64a4u.o
+ .debug_abbrev  0x000000000000262c      0x1f2 build/default/debug/main.o
 
-.debug_line     0x0000000000000000      0x391
+.debug_line     0x0000000000000000      0x625
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x391 /opt/microchip/mplabx/v6.15/packs/Microchip/XMEGAA_DFP/2.2.54/gcc/dev/atxmega64a4u/avrxmega4/crtatxmega64a4u.o
+ .debug_line    0x0000000000000391      0x294 build/default/debug/main.o
 
-.debug_frame
+.debug_frame    0x0000000000000000       0xc0
  *(.debug_frame)
+ .debug_frame   0x0000000000000000       0xc0 build/default/debug/main.o
 
-.debug_str      0x0000000000000000     0x1aa8
+.debug_str      0x0000000000000000     0x226b
  *(.debug_str)
  .debug_str     0x0000000000000000     0x1aa8 /opt/microchip/mplabx/v6.15/packs/Microchip/XMEGAA_DFP/2.2.54/gcc/dev/atxmega64a4u/avrxmega4/crtatxmega64a4u.o
+ .debug_str     0x0000000000001aa8      0x7c3 build/default/debug/main.o
+                                        0x815 (size before relaxing)
 
-.debug_loc
+.debug_loc      0x0000000000000000      0x22f
  *(.debug_loc)
+ .debug_loc     0x0000000000000000      0x22f build/default/debug/main.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -586,10 +598,11 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges
+.debug_ranges   0x0000000000000000       0x38
  *(.debug_ranges)
+ .debug_ranges  0x0000000000000000       0x38 build/default/debug/main.o
 
 .debug_macro
  *(.debug_macro)
-OUTPUT(dist/default/production/Firmware.production.elf elf32-avr)
+OUTPUT(dist/default/debug/Firmware.debug.elf elf32-avr)
 LOAD linker stubs

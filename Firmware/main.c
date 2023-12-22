@@ -5,41 +5,13 @@
  * Created on 02 December 2023, 16:51
  */
 
+#pragma config BOOTRST = 0
+
 #define F_CPU 2000000UL
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
-
-/*//Again, function obsolete(?)
-inline void setLedChannel(uint8_t ledNum, uint8_t onOrOff)
-{
-	if((ledNum == 0) || (ledNum > 12)) {
-		return;
-	}
-	
-	uint8_t ledValue = !onOrOff; //PMOS high side switches mean that pin on = LED off
-	
-	if(ledNum > 8) {
-		uint8_t portDPin = 12 - ledNum; // 3 - (ledNum - 9); //Function to translate led number to port D pin.
-		PORTD.OUTCLR = (1 << portDPin);
-		PORTD.OUTSET = (ledValue << portDPin);
-		return;
-	}
-	//if ledNum <= 8:
-	{
-		uint8_t portAPin = 8 - ledNum; //7 - (ledNum - 1); //Done this way for clarity. Does this even contribute to clarity?
-		PORTA.OUTCLR = (1 << portAPin);
-		PORTA.OUTSET = (ledValue << portAPin);
-	}
-	return;
-}*/
-
-/*void clearAllLeds() //Set port A 0-7 and port D 0-3 to turn off all LED channels.
-{
-    PORTA.OUTCLR = 0xFF;
-    PORTD.OUTCLR = 0x0F;
-}*/
 
 void setupPWM()
 {
@@ -47,16 +19,16 @@ void setupPWM()
                 |  PORT_TC0B_bm
                 |  PORT_TC0C_bm
                 |  PORT_TC0D_bm;
-    TCC0.CTRLA = TC_CLKSEL_DIV4_gc;
+    TCC0.CTRLA = TC_CLKSEL_DIV1_gc;
     TCC0.CTRLB = TC0_CCBEN_bm
                 |TC0_CCCEN_bm
                 |TC0_CCDEN_bm
                 |TC_WGMODE_SINGLESLOPE_gc;
-    TCC0.PER = 0x0115;
+    TCC0.PER = 0x0265;
     
     sei();
     PMIC.CTRL |= PMIC_LOLVLEN_bm;
-    TCC0.INTCTRLB = (TC_CCAINTLVL_LO_gc << 0);
+    TCC0.INTCTRLB = TC_CCAINTLVL_LO_gc;
     
     TCC0.CCB = 0;
     TCC0.CCC = 0;
@@ -65,35 +37,77 @@ void setupPWM()
     TCC0.CCA = 0x100;
 }
 
-/* Function obsolete by new color system(?)
-void setColor(uint8_t red, uint8_t green, uint8_t blue)
-{
-    TCC0.CCB = red;
-    TCC0.CCD = green;
-    TCC0.CCC = blue;
-}*/
 
 volatile uint8_t colorNum = 0;
-#define NUMCOLORS 3
+#define NUM_MAX_COLORS 12
 #define RGB 3
 #define R 0
 #define G 1
 #define B 2
-uint8_t colors[RGB][NUMCOLORS] = {{255, 255, 0}, {0, 255, 0}, {0, 0, 255}}; //{{R1, R2, R3}, {G1, ...
-uint8_t port_a_per_color[NUMCOLORS] = {0b00100000, 0b01000000, 0b10000000};
-uint8_t port_d_per_color[NUMCOLORS] = {0x0, 0x0, 0x0}; //From this I expect red on 8 & 9, green on 7 & 10, blue on 6 & 11.
 
+uint8_t numColors = 12;
+uint8_t colors[NUM_MAX_COLORS][RGB];// = {{25, 0, 0}, {0, 25, 0}, {0, 0, 25}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+uint8_t port_a_per_color[NUM_MAX_COLORS] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01, 0, 0, 0, 0};
+uint8_t port_d_per_color[NUM_MAX_COLORS] = {0, 0, 0, 0, 0, 0, 0, 0, 0x08, 0x04, 0x02, 0x01};
 ISR(TCC0_CCA_vect) //Instead of this, do DMA(?) or interrupt into CCx buffer, triggered by said CCx event!
 {
-    if(++colorNum >= NUMCOLORS) { //Fixed this. God damn.
+    if(++colorNum >= numColors) { //Fixed this. God damn.
         colorNum = 0;
     }
-    TCC0.CCB = colors[R][colorNum];
-    TCC0.CCD = colors[G][colorNum];
-    TCC0.CCC = colors[B][colorNum];
+    TCC0.CCB = colors[colorNum][R];
+    TCC0.CCD = colors[colorNum][G];
+    TCC0.CCC = colors[colorNum][B];
     PORTA.OUT = port_a_per_color[colorNum];
     PORTD.OUTCLR = 0x0F;
     PORTD.OUTSET = port_d_per_color[colorNum];
+}
+
+
+
+void setupPeriodicInterrupt()
+{
+    TCC1.CTRLA = TC_CLKSEL_DIV1024_gc;
+    TCC1.INTCTRLA = TC_OVFINTLVL_LO_gc;
+    
+    TCC1.PER = 0x02;
+}
+
+uint8_t rainbowR = 0x00;
+uint8_t rainbowG = 0x55;
+uint8_t rainbowB = 0x99;
+int8_t rdir = 1;
+int8_t gdir = 1;
+int8_t bdir = 1;
+
+ISR(TCC1_OVF_vect)
+{
+        rainbowR += rdir;
+        if(rainbowR == 0x00) {
+            rdir = -rdir;
+            rainbowR += rdir;
+        }
+        rainbowG += gdir;
+        if(rainbowG == 0x00) {
+            gdir = -gdir;
+            rainbowG += gdir;
+        }
+        rainbowB += bdir;
+        if(rainbowB == 0x00) {
+            bdir = -bdir;
+            rainbowR += bdir;
+        }
+        setColor(10, rainbowR, rainbowG, rainbowB);
+}
+
+void setColor(uint8_t color, uint8_t redVal, uint8_t greenVal, uint8_t blueVal)
+{
+    if(color-- > 11) {
+        return;
+    }
+    
+    colors[color][R] = redVal;
+    colors[color][G] = greenVal;
+    colors[color][B] = blueVal;
 }
 
 
@@ -115,31 +129,14 @@ int main(void)
     
     setupPWM();
     
+    setupPeriodicInterrupt();
     
+    setColor(1, 25, 0, 0);
+    setColor(2, 0, 50, 0);
+    setColor(3, 0, 100, 25);
+    setColor(5, 100, 1, 0);
+
     while (1) 
     {
-        /* Below code obsolete because of new colour system.
-        
-		for(int i = 5; i <= 7; ++i) { //Cycle through R, G and B on active LEDs
-			switch(i) {
-                case 5:{
-                    setColor(1, 0, 0);
-                    break;}
-                case 6:{
-                    setColor(0, 0, 0);
-                    break;
-                }
-                case 7:{
-                    setColor(00, 30, 10);
-                    break;
-                }
-                    
-            }
-			for(int j = 0; j <= 12; ++j) {
-                clearAllLeds();
-				setLedChannel(j, 1);
-				_delay_ms(500);
-			}
-		}*/
     }
 }
