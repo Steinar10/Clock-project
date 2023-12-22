@@ -96,12 +96,12 @@ ISR(TCC1_OVF_vect)
             bdir = -bdir;
             rainbowR += bdir;
         }
-        setColor(10, rainbowR, rainbowG, rainbowB);
+        setColor(12, rainbowR, rainbowG, rainbowB);
 }
 
 void setColor(uint8_t color, uint8_t redVal, uint8_t greenVal, uint8_t blueVal)
 {
-    if(color-- > 11) {
+    if(--color > 11) {
         return;
     }
     
@@ -135,6 +135,11 @@ int main(void)
     setColor(2, 0, 50, 0);
     setColor(3, 0, 100, 25);
     setColor(5, 100, 1, 0);
+    setColor(6, 0, 0, 100);
+    setColor(7, 100, 20, 0);
+    setColor(8, 50, 70, 0);
+    setColor(9, 80, 0, 20);
+    setColor(10, 20, 0, 80);
 
     while (1) 
     {

@@ -20,7 +20,7 @@ Discarded input sections
  .data          0x0000000000000000        0x0 build/default/production/main.o
  .bss           0x0000000000000000        0x0 build/default/production/main.o
  .text.setColor
-                0x0000000000000000       0x1e build/default/production/main.o
+                0x0000000000000000       0x20 build/default/production/main.o
  .text          0x0000000000000000        0x0 /usr/lib/gcc/avr/5.4.0/avrxmega4/libgcc.a(_exit.o)
  .data          0x0000000000000000        0x0 /usr/lib/gcc/avr/5.4.0/avrxmega4/libgcc.a(_exit.o)
  .bss           0x0000000000000000        0x0 /usr/lib/gcc/avr/5.4.0/avrxmega4/libgcc.a(_exit.o)
@@ -196,7 +196,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x0000000000000000      0x47e
+.text           0x0000000000000000      0x4a2
  *(.vectors)
  .vectors       0x0000000000000000      0x1fc /opt/microchip/mplabx/v6.15/packs/Microchip/XMEGAA_DFP/2.2.54/gcc/dev/atxmega64a4u/avrxmega4/crtatxmega64a4u.o
                 0x0000000000000000                __vectors
@@ -394,13 +394,13 @@ END GROUP
  .text.__vector_20
                 0x000000000000037c       0xa2 build/default/production/main.o
                 0x000000000000037c                __vector_20
- .text.main     0x000000000000041e       0x5c build/default/production/main.o
+ .text.main     0x000000000000041e       0x80 build/default/production/main.o
                 0x000000000000041e                main
-                0x000000000000047a                . = ALIGN (0x2)
+                0x000000000000049e                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x000000000000047a        0x0 /usr/lib/gcc/avr/5.4.0/avrxmega4/libgcc.a(_exit.o)
-                0x000000000000047a                exit
-                0x000000000000047a                _exit
+ .fini9         0x000000000000049e        0x0 /usr/lib/gcc/avr/5.4.0/avrxmega4/libgcc.a(_exit.o)
+                0x000000000000049e                exit
+                0x000000000000049e                _exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -419,11 +419,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x000000000000047a        0x4 /usr/lib/gcc/avr/5.4.0/avrxmega4/libgcc.a(_exit.o)
+ .fini0         0x000000000000049e        0x4 /usr/lib/gcc/avr/5.4.0/avrxmega4/libgcc.a(_exit.o)
  *(.fini0)
-                0x000000000000047e                _etext = .
+                0x00000000000004a2                _etext = .
 
-.data           0x0000000000802000       0x1e load address 0x000000000000047e
+.data           0x0000000000802000       0x1e load address 0x00000000000004a2
                 0x0000000000802000                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
@@ -468,8 +468,8 @@ END GROUP
  COMMON         0x0000000000802020       0x24 build/default/production/main.o
                 0x0000000000802020                colors
                 0x0000000000802044                PROVIDE (__bss_end, .)
-                0x000000000000047e                __data_load_start = LOADADDR (.data)
-                0x000000000000049c                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00000000000004a2                __data_load_start = LOADADDR (.data)
+                0x00000000000004c0                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x0000000000802044        0x0
                 [!provide]                        PROVIDE (__noinit_start, .)
