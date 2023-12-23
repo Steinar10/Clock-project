@@ -5,13 +5,16 @@
  * Created on 02 December 2023, 16:51
  */
 
-#pragma config BOOTRST = 0
+#pragma config BOOTRST = 0 //unsure if this actually does anything, had to set this fuse bit in Microchip Studio. This is for the USB dfu bootloader.
 
 #define F_CPU 2000000UL
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+
+
+/*------------LED colours/dimming system-------------*/
 
 void setupPWM()
 {
@@ -49,12 +52,13 @@ uint8_t numColors = 12;
 uint8_t colors[NUM_MAX_COLORS][RGB];// = {{25, 0, 0}, {0, 25, 0}, {0, 0, 25}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 uint8_t port_a_per_color[NUM_MAX_COLORS] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01, 0, 0, 0, 0};
 uint8_t port_d_per_color[NUM_MAX_COLORS] = {0, 0, 0, 0, 0, 0, 0, 0, 0x08, 0x04, 0x02, 0x01};
+
 ISR(TCC0_CCA_vect) //Instead of this, do DMA(?) or interrupt into CCx buffer, triggered by said CCx event!
 {
-    if(++colorNum >= numColors) { //Fixed this. God damn.
+    if(++colorNum >= numColors) {
         colorNum = 0;
     }
-    TCC0.CCB = colors[colorNum][R];
+    TCC0.CCB = colors[colorNum][R]; //Todo: Flip the array order back to how it was so DMA can work with it more easily.
     TCC0.CCD = colors[colorNum][G];
     TCC0.CCC = colors[colorNum][B];
     PORTA.OUT = port_a_per_color[colorNum];
@@ -63,6 +67,19 @@ ISR(TCC0_CCA_vect) //Instead of this, do DMA(?) or interrupt into CCx buffer, tr
 }
 
 
+void setColor(uint8_t color, uint8_t redVal, uint8_t greenVal, uint8_t blueVal)
+{
+    if(--color > 11) {
+        return;
+    }
+    
+    colors[color][R] = redVal;
+    colors[color][G] = greenVal;
+    colors[color][B] = blueVal;
+}
+
+
+/*------------Periodic interrupts-------------*/
 
 void setupPeriodicInterrupt()
 {
@@ -98,18 +115,6 @@ ISR(TCC1_OVF_vect)
         }
         setColor(12, rainbowR, rainbowG, rainbowB);
 }
-
-void setColor(uint8_t color, uint8_t redVal, uint8_t greenVal, uint8_t blueVal)
-{
-    if(--color > 11) {
-        return;
-    }
-    
-    colors[color][R] = redVal;
-    colors[color][G] = greenVal;
-    colors[color][B] = blueVal;
-}
-
 
 
 int main(void)
