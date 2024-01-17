@@ -5,7 +5,7 @@
  * Created on 02 December 2023, 16:51
  */
 
-#pragma config BOOTRST = 0 //unsure if this actually does anything, had to set this fuse bit in Microchip Studio. This is for the USB dfu bootloader.
+#pragma config BOOTRST = 0
 
 #define F_CPU 2000000UL
 
@@ -13,21 +13,21 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
-
-/*------------LED colours/dimming system-------------*/
-
 void setupPWM()
 {
     PORTC.REMAP |= PORT_TC0A_bm //Better to accidentally send bogus into unused pin than into I2C data line
-                |  PORT_TC0B_bm
+                |  PORT_TC0B_bm //Remap timer outputs to high nibble, that's where the colour transistors are.
                 |  PORT_TC0C_bm
                 |  PORT_TC0D_bm;
+    
     TCC0.CTRLA = TC_CLKSEL_DIV1_gc;
-    TCC0.CTRLB = TC0_CCBEN_bm
+    
+    TCC0.CTRLB = TC0_CCBEN_bm //enable timer outputs to colour channels
                 |TC0_CCCEN_bm
                 |TC0_CCDEN_bm
-                |TC_WGMODE_SINGLESLOPE_gc;
-    TCC0.PER = 0x0265;
+                |TC_WGMODE_SINGLESLOPE_gc; //single slope pwm mode
+    
+    TCC0.PER = 0x0265; //period larger than 0xFF so that the next-color-setup interrupt has time to run before the timer is reset.
     
     sei();
     PMIC.CTRL |= PMIC_LOLVLEN_bm;
@@ -48,28 +48,30 @@ volatile uint8_t colorNum = 0;
 #define G 1
 #define B 2
 
-uint8_t numColors = 12;
+uint8_t numColors = 3;
 uint8_t colors[NUM_MAX_COLORS][RGB];// = {{25, 0, 0}, {0, 25, 0}, {0, 0, 25}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
-uint8_t port_a_per_color[NUM_MAX_COLORS] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01, 0, 0, 0, 0};
-uint8_t port_d_per_color[NUM_MAX_COLORS] = {0, 0, 0, 0, 0, 0, 0, 0, 0x08, 0x04, 0x02, 0x01};
+uint8_t port_a_per_color[NUM_MAX_COLORS] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01, 0, 0, 0, 0}; //test values -> 1 colour per LED
+uint8_t port_d_per_color[NUM_MAX_COLORS] = {0, 0, 0, 0, 0, 0, 0, 0, 0x08, 0x04, 0x02, 0x01}; //test values
 
 ISR(TCC0_CCA_vect) //Instead of this, do DMA(?) or interrupt into CCx buffer, triggered by said CCx event!
 {
-    if(++colorNum >= numColors) {
+    if(++colorNum >= numColors) { //cycle through only the set amount of colours. if zero-indexed counter equals one-indexed maximum, reset counter.
         colorNum = 0;
     }
-    TCC0.CCB = colors[colorNum][R]; //Todo: Flip the array order back to how it was so DMA can work with it more easily.
+    
+    TCC0.CCB = colors[colorNum][R]; //set the new colour value to low-side timers.
     TCC0.CCD = colors[colorNum][G];
     TCC0.CCC = colors[colorNum][B];
-    PORTA.OUT = port_a_per_color[colorNum];
+    
+    PORTA.OUT = port_a_per_color[colorNum]; //Set which LEDs have this colour
     PORTD.OUTCLR = 0x0F;
     PORTD.OUTSET = port_d_per_color[colorNum];
 }
 
 
-void setColor(uint8_t color, uint8_t redVal, uint8_t greenVal, uint8_t blueVal)
+inline void setColor(uint8_t color, uint8_t redVal, uint8_t greenVal, uint8_t blueVal) //made inline for fast execution in interrupts
 {
-    if(--color > 11) {
+    if(--color > (NUM_MAX_COLORS - 1)) { //translate one-indexed input to zero-indexed, then check if it's out of bounds.
         return;
     }
     
@@ -78,8 +80,6 @@ void setColor(uint8_t color, uint8_t redVal, uint8_t greenVal, uint8_t blueVal)
     colors[color][B] = blueVal;
 }
 
-
-/*------------Periodic interrupts-------------*/
 
 void setupPeriodicInterrupt()
 {
@@ -90,13 +90,13 @@ void setupPeriodicInterrupt()
 }
 
 uint8_t rainbowR = 0x00;
-uint8_t rainbowG = 0x55;
-uint8_t rainbowB = 0x99;
+uint8_t rainbowG = 0x99;//ish 2/3 of uint8
+uint8_t rainbowB = 0x99;//ish 2/3 of uint8, but going down
 int8_t rdir = 1;
 int8_t gdir = 1;
-int8_t bdir = 1;
+int8_t bdir = -1;
 
-ISR(TCC1_OVF_vect)
+ISR(TCC1_OVF_vect) //periodic interrupt. Kind of replaces main().
 {
         rainbowR += rdir;
         if(rainbowR == 0x00) {
@@ -120,10 +120,10 @@ ISR(TCC1_OVF_vect)
 int main(void)
 {	
 	PORTA.DIR = 0xFF;
-    PORTCFG.MPCMASK = 0xFF; //Seems like this works :D
-    PORTA.PIN0CTRL |= PORT_INVEN_bm //These outputs are connected to PMOS gates.
-                   | (PORT_ISC_INPUT_DISABLE_gc << PORT_ISC_gp);//Inputs not needed here
-    PORTA.OUTCLR = 0xFF; //Turn off all LEDs
+    PORTCFG.MPCMASK = 0xFF; //The following PIN0CTRL becomes PIN-ALL-CTRL
+    PORTA.PIN0CTRL |= PORT_INVEN_bm //Invert these outputs because they are connected to PMOS gates (active-low).
+                   | (PORT_ISC_INPUT_DISABLE_gc << PORT_ISC_gp);//Inputs not needed for these pins.
+    PORTA.OUTCLR = 0xFF; //Make sure all LEDs are off
     
 	PORTD.DIRSET = 0x0F;
     PORTCFG.MPCMASK = 0x0F;

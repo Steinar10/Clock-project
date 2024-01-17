@@ -7,7 +7,8 @@ build/default/debug/main.o.d build/default/debug/main.o: main.c \
  /usr/lib/avr/include/avr/version.h /usr/lib/avr/include/avr/xmega.h \
  /usr/lib/avr/include/avr/fuse.h /usr/lib/avr/include/avr/lock.h \
  /usr/lib/avr/include/avr/interrupt.h /usr/lib/avr/include/util/delay.h \
- /usr/lib/avr/include/util/delay_basic.h /usr/lib/avr/include/math.h
+ /usr/lib/avr/include/util/delay_basic.h /usr/lib/avr/include/math.h \
+ /usr/lib/avr/include/avr/sleep.h
 
 /usr/lib/avr/include/avr/io.h:
 
@@ -40,3 +41,5 @@ build/default/debug/main.o.d build/default/debug/main.o: main.c \
 /usr/lib/avr/include/util/delay_basic.h:
 
 /usr/lib/avr/include/math.h:
+
+/usr/lib/avr/include/avr/sleep.h:
